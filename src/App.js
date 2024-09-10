@@ -1,23 +1,33 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
+import axios from 'axios';
+import SearchBar from './components/SearchBar';
+import WeatherDisplay from './components/WeatherDisplay';
+import ErrorDisplay from './components/ErrorDisplay';
 import './App.css';
 
 function App() {
+  const [city, setCity] = useState('');
+  const [weatherData, setWeatherData] = useState(null);
+  const [error, setError] = useState(null);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault(); // Prevent page reload
+    try {
+      const response = await axios.get(`http://localhost:5000/weather?city=${city}`);
+      setWeatherData(response.data);
+      setError(null);
+    } catch (error) {
+      setError('Error fetching weather data');
+      setWeatherData(null);
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>Weather App</h1>
+      <SearchBar city={city} setCity={setCity} handleSubmit={handleSubmit} />
+      {error && <ErrorDisplay error={error} />}
+      {weatherData && <WeatherDisplay weatherData={weatherData} />}
     </div>
   );
 }
